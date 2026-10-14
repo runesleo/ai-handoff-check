@@ -1,0 +1,29 @@
+name: Smoke and tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.11']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Read-only doctor
+        run: python -I -B scripts/handoff.py doctor --json
+      - name: Offline synthetic example
+        run: python -I -B scripts/handoff.py demo
+      - name: Unit tests
+        run: python -I -B -m unittest discover -s tests -p 'test_*.py' -q

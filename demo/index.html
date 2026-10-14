@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Handoff Check · 20-second walkthrough</title>
+<meta name="description" content="An illustrated three-step example of checking a file handoff between two AIs. No accounts or network requests.">
+<style>
+:root{color-scheme:light;--navy:#122740;--muted:#586c82;--line:#dbe5ef;--green:#0a8060;--red:#b64b43;--bg:#f5f8fc}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#f7fafc,#edf4ff);color:var(--navy)}
+main{max-width:1080px;margin:0 auto;padding:34px 20px 60px}
+.eyebrow{font-weight:750;color:#3868b1;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.05em;margin:13px 0 10px;line-height:1.08}
+.lead{font-size:19px;color:var(--muted);max-width:760px;line-height:1.55;margin:0 0 23px}
+.notice{display:inline-block;background:#fff3db;color:#8c5e12;border:1px solid #f4d9a6;padding:9px 13px;border-radius:13px;font-size:13px;font-weight:650}
+.steps{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0}
+.steps button{font:inherit;background:#fff;color:#47627d;padding:13px 17px;border:1px solid #cfdae7;border-radius:13px;cursor:pointer;font-weight:700}
+.steps button[aria-pressed="true"]{background:#153956;color:#fff;border-color:#153956;box-shadow:0 5px 16px #15395620}
+.steps button:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+.stage{background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px;box-shadow:0 12px 38px #25405e0d}
+.scenario{font-size:25px;font-weight:780;letter-spacing:-.03em;line-height:1.3;margin:0 0 23px}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr);align-items:center;gap:14px}
+.agent{background:#f9fbff;border:1px solid #dbe5ef;border-radius:19px;padding:22px;min-height:190px}
+.agent .name{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#47748f}
+.file{display:block;font-size:clamp(22px,3vw,30px);font-weight:800;margin:21px 0 5px;letter-spacing:-.035em;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:16px}
+.token{display:inline-block;font-weight:750;font-size:13px;background:#e0f4eb;color:#127452;padding:7px 12px;border-radius:20px;margin-top:15px}
+.token.stale{background:#fdebe7;color:#ad4039}
+.arrow{text-align:center;color:#62839f;font-size:41px;font-weight:800}
+.arrow small{display:block;font-size:11px;line-height:1.4;font-weight:650;color:var(--muted)}
+.checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:21px}
+.check{border-radius:16px;padding:16px;border:1px solid var(--line);background:#fff}
+.check .term{font-weight:750;margin-bottom:9px;font-size:15px}
+.check .value{font-size:14px;line-height:1.48;font-weight:650;color:var(--muted)}
+.check.good{border-color:#b7e5d4;background:#f1fcf7}.check.good .value{color:var(--green)}
+.check.bad{border-color:#f3c5bf;background:#fff4f2}.check.bad .value{color:var(--red)}
+.check.wait .value{color:#536980}
+.lesson{margin-top:23px;padding:17px 19px;border-left:4px solid #397ebc;background:#f0f6ff;border-radius:0 12px 12px 0;font-weight:650;line-height:1.55}
+footer{color:var(--muted);font-size:14px;line-height:1.65;margin-top:25px}
+footer strong{color:var(--navy)}
+@media(max-width:700px){main{padding:24px 14px 40px}.stage{padding:19px}.flow{grid-template-columns:1fr}.agent{min-height:130px}.arrow{transform:rotate(90deg);font-size:30px;line-height:1}.arrow small{display:none}.checks{grid-template-columns:1fr}.scenario{font-size:21px}}
+@media(prefers-reduced-motion:no-preference){.stage{transition:box-shadow .2s ease}.steps button{transition:background .15s ease,color .15s ease}}
+</style>
+</head>
+<body>
+<main>
+ <div class="eyebrow">AI Handoff Check · Interactive walkthrough</div>
+ <h1>They both said “done.”<br>Did they use the same file?</h1>
+ <p class="lead">You finish a task in ChatGPT and ask another AI to continue. The same file path can hold new content while the receiver has an older snapshot. See how a file can arrive correctly <em>and still be outdated.</em></p>
+ <div class="notice">Illustration only · Uses no real AI, files, network, or accounts</div>
+ <nav class="steps" aria-label="Select a demonstration step">
+  <button type="button" data-stage="0" aria-pressed="true">1 · Send v1</button>
+  <button type="button" data-stage="1" aria-pressed="false">2 · Edit to v2</button>
+  <button type="button" data-stage="2" aria-pressed="false">3 · Hand off v2 + test</button>
+ </nav>
+ <section class="stage" aria-live="polite">
+  <h2 class="scenario" id="scenario">The file arrived. Everything matches — for now.</h2>
+  <div class="flow">
+   <article class="agent"><div class="name">Source AI · ChatGPT</div><strong id="source" class="file">brief.md</strong><div class="meta">Current source file</div><span id="source-tag" class="token">LATEST · v1</span></article>
+   <div class="arrow" aria-label="Uses an existing authorized transfer">→<small>Existing transfer<br>(not provided by this Skill)</small></div>
+   <article class="agent"><div class="name">Receiving AI · e.g. Grok</div><strong id="received" class="file">brief.md</strong><div class="meta">Last delivered file</div><span id="received-tag" class="token">RECEIVED · v1</span></article>
+  </div>
+  <div class="checks" aria-label="Three separate handoff checks">
+   <div class="check good"><div class="term">1 · File arrived?</div><div class="value" id="file-check">✓ Bytes match captured v1</div></div>
+   <div class="check good" id="fresh-card"><div class="term">2 · Latest version?</div><div class="value" id="fresh-check">✓ Source and received: v1</div></div>
+   <div class="check wait" id="output-card"><div class="term">3 · Correct output?</div><div class="value" id="output-check">? Separate output assertion not run</div></div>
+  </div>
+  <div class="lesson" id="lesson">The file check is green. The source has not changed yet. “Done” still does not prove the receiving AI used the right details.</div>
+ </section>
+ <footer><strong>What the real Skill checks:</strong> file bytes + version freshness, using an existing accessible destination. An output assertion must be supplied separately. It does not send files, synchronize native AI memory, or retry uncertain tasks. This page is a three-step visual explanation, not a live verification result. It tracks a fixed source path, not newly created filenames.</footer>
+</main>
+<script>
+(() => {
+ const stages=[
+ {scenario:"The file arrived. Everything matches — for now.",source:1,received:1,fresh:"✓ Source and received: v1",output:"? Separate output assertion not run",outputClass:"wait",freshClass:"good",lesson:"The file check is green. The source has not changed yet. “Done” still does not prove the receiving AI used the right details."},
+ {scenario:"You edited the file. The other AI still has v1.",source:2,received:1,fresh:"✕ Source v2 ≠ received v1",output:"! Old output must not be accepted as current",outputClass:"bad",freshClass:"bad",lesson:"This is the key insight: delivery of v1 was real, but the original has advanced to v2. Stop trusting the old completion and hand off the new version using your existing tool."},
+ {scenario:"Your existing tool delivered v2. Now test the result.",source:2,received:2,fresh:"✓ Source and received: v2",output:"✓ Example result assertion passed",outputClass:"good",freshClass:"good",lesson:"The file and version checks are green. In this illustrated example, a separate output assertion also passed; the Skill itself does not run arbitrary task-specific assertions."}
+ ];
+ const $=id=>document.getElementById(id);
+ function show(n){
+  const d=stages[n];
+  $("scenario").textContent=d.scenario;
+  $("source").textContent="brief.md";
+  $("received").textContent="brief.md";
+  $("source-tag").textContent="LATEST · v"+d.source;
+  $("received-tag").textContent="RECEIVED · v"+d.received;
+  $("received-tag").className="token"+(d.source!==d.received?" stale":"");
+  $("file-check").textContent="✓ Bytes match captured v"+d.received;
+  $("fresh-check").textContent=d.fresh;
+  $("output-check").textContent=d.output;
+  $("fresh-card").className="check "+d.freshClass;
+  $("output-card").className="check "+d.outputClass;
+  $("lesson").textContent=d.lesson;
+  document.querySelectorAll("[data-stage]").forEach(button=>button.setAttribute("aria-pressed",String(Number(button.dataset.stage)===n)));
+ }
+ document.querySelectorAll("[data-stage]").forEach(b=>b.addEventListener("click",()=>show(Number(b.dataset.stage))));
+ show(0);
+})();
+</script>
+</body>
+</html>
