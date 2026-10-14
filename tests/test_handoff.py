@@ -251,7 +251,9 @@ class HandoffTests(unittest.TestCase):
         for stage in ('data-stage="0"', 'data-stage="1"', 'data-stage="2"'):
             self.assertIn(stage, page)
         self.assertIn("network, or accounts", page)
-        self.assertNotIn("https://", page)
+        self.assertIn('href="https://github.com/runesleo/ai-handoff-check"', page)
+        self.assertIn('href="https://github.com/runesleo/ai-handoff-check/blob/main/install.md"', page)
+        self.assertNotIn('src="https://', page)
         self.assertNotIn("fetch(", page)
         self.assertIn("Separate output assertion", page)
         self.assertNotIn("brief_v1.md", page)

@@ -18,7 +18,7 @@
 
 The old handoff was *correctly delivered*, but is now *outdated*. That difference is exactly what this Skill detects.
 
-**[Explore the three-step interactive walkthrough](demo/index.html)** — download the repository and open `demo/index.html` locally in a browser. The page is a labeled illustration, not a real transfer.
+**[Try the live three-step interactive demo](https://runesleo.github.io/ai-handoff-check/)** — opens in a browser without accounts or file uploads. It is a labeled illustration, not a real transfer; the same `demo/index.html` is included for offline use.
 
 
 ## Install with your AI
